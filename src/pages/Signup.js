@@ -18,9 +18,20 @@ const Signup = () => {
             }
         })
     }
-    const handleSubmit = (event) =>{
+    const handleSubmit = async (event) =>{
         event.preventDefault();
-        console.log(user);
+        // console.log(user);
+        const response = await fetch('http://localhost:5000/user/signup',{
+            method: 'POST',
+            body: JSON.stringify(user),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const data = await response.json();
+        // console.log(data);
+        alert(data.message);
+
     }
     return (
         <div>
@@ -64,6 +75,7 @@ const Signup = () => {
                 </div>
                 <div>
                     <button type="submit">create</button>
+                    <p>Already have an account <a href="">login</a></p>
                 </div>
             </form>
         </div>
