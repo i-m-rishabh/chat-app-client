@@ -1,4 +1,6 @@
 import React, { useState } from "react"
+import {Link} from 'react-router-dom';
+
 const Signup = () => {
     const initialState = {
         username : '',
@@ -75,7 +77,7 @@ const Signup = () => {
                 </div>
                 <div>
                     <button type="submit">create</button>
-                    <p>Already have an account <a href="">login</a></p>
+                    <p>Already have an account <Link to="/login">Login</Link></p>
                 </div>
             </form>
         </div>

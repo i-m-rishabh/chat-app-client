@@ -1,6 +1,9 @@
 import { useState } from "react";
+import {Link, useNavigate} from 'react-router-dom';
 
 const Login = () => {
+
+    const navigate = useNavigate();
 
     const [credential, setCredential] = useState({
         email: null,
@@ -30,7 +33,11 @@ const Login = () => {
             if(!response.ok){
                 throw new Error('someting went wrong');
             }else{
-                console.log(data);
+                // 
+                // console.log(data);
+                const {token} = data;
+                localStorage.setItem("token", token);
+                navigate('/chat-app');            
             }
         }
         catch(err){
@@ -52,7 +59,7 @@ const Login = () => {
                 </div>
                 <div>
                     <button type="submit"> login </button>
-                    <p>don't have an account <a href="">signup</a></p>
+                    <p>don't have an account <Link to={'/signup'}>signup</Link></p>
                 </div>
             </form>
         </div>
