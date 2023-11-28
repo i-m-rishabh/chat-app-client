@@ -23,7 +23,7 @@ const Signup = () => {
     const handleSubmit = async (event) =>{
         event.preventDefault();
         // console.log(user);
-        const response = await fetch('http://localhost:5000/user/signup',{
+        const response = await fetch('http://localhost:5000/signup',{
             method: 'POST',
             body: JSON.stringify(user),
             headers: {

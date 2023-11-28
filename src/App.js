@@ -1,6 +1,6 @@
 import './App.css';
-import Signup from './pages/Signup.js';
-import Login from './pages/Login.js';
+// import Signup from './pages/Signup.js';
+// import Login from './pages/Login.js';
 import Router from './router/routes.js';
 
 function App() {

@@ -6,8 +6,8 @@ const Login = () => {
     const navigate = useNavigate();
 
     const [credential, setCredential] = useState({
-        email: null,
-        password: null,
+        email: '',
+        password: '',
     });
 
     const handleChange = (event) => {
@@ -22,7 +22,7 @@ const Login = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await fetch('http://localhost:5000/user/login', {
+            const response = await fetch('http://localhost:5000/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
