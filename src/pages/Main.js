@@ -5,6 +5,7 @@ const Main = () => {
     const [activeUsers, setActiveUsers] = useState([]);
     const [textMessage, setTextMessage] = useState('');
     const [messages, setMessages] = useState([]);
+    const [intervalId, setIntervalId] = useState('');
     const [token, setToken] = useState('');
     const navigate = useNavigate();
     const inputRef = useRef(null);
@@ -42,7 +43,14 @@ const Main = () => {
         }
         async function fetchAllMessages(){
             try{
-                const response = await fetch('http://localhost:5000/message/get-messages', {
+                const oldMessages = JSON.parse(localStorage.getItem('oldMessages')) || [];
+                let lastMessageId;
+                if(oldMessages.length>0){
+                    lastMessageId = oldMessages[oldMessages.length-1].id;
+                }else{
+                    lastMessageId = -1;
+                }
+                const response = await fetch(`http://localhost:5000/message/get-messages?messageId=${lastMessageId}`, {
                 method: 'GET', 
                 headers: {
                     'authorization': token,
@@ -54,8 +62,11 @@ const Main = () => {
                 throw new Error(messages.error);
             }else{
                 //add appropriate logic here
+                const updatedMessages =  [...oldMessages, ...data.data];
+                console.log(updatedMessages);
+                localStorage.setItem('oldMessages', JSON.stringify(updatedMessages));
                 setMessages(()=>{
-                    return data.data;
+                    return updatedMessages;
                 })
                 console.log(messages);
             }
@@ -65,9 +76,16 @@ const Main = () => {
         }
         fetchActiveUsers();
         // fetchAllMessages();
-        setInterval(() => {
+        var intervalId = setInterval(() => {
             fetchAllMessages();
-        }, 2000);
+        }, 10000);
+        setIntervalId(intervalId);
+
+        return ()=>{
+            if(intervalId){
+                clearInterval(intervalId);
+            }
+        }
     },[token]);
 
    
@@ -79,7 +97,7 @@ const Main = () => {
             method: 'POST', 
             body: JSON.stringify({text: textMessage}),
             headers: {
-                authorization: token,
+                'authorization': token,
                 'Content-Type': 'application/json',
             }
         })
@@ -97,6 +115,7 @@ const Main = () => {
         }
     }
     const handleLogout = async() => {
+
         const response = await fetch('http://localhost:5000/logout',{
             method:'GET',
             headers:{
@@ -108,6 +127,9 @@ const Main = () => {
         if(!response.ok){
             console.log(data.message);
         }else{
+            if(intervalId){
+                clearInterval(intervalId);
+            }
             alert('logged out successfully');
             navigate('/login');
         }
