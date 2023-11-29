@@ -45,15 +45,18 @@ const Main = () => {
                 const response = await fetch('http://localhost:5000/message/get-messages', {
                 method: 'GET', 
                 headers: {
-                    authorization: token,
+                    'authorization': token,
                     'Content-Type': 'application/json'
                 }
             });
-            const messages = await response.json(); 
+            const data = await response.json(); 
             if(!response.ok){
                 throw new Error(messages.error);
             }else{
                 //add appropriate logic here
+                setMessages(()=>{
+                    return data.data;
+                })
                 console.log(messages);
             }
             }catch(err){
@@ -61,7 +64,10 @@ const Main = () => {
             }
         }
         fetchActiveUsers();
-        fetchAllMessages();
+        // fetchAllMessages();
+        setInterval(() => {
+            fetchAllMessages();
+        }, 2000);
     },[token]);
 
    
@@ -77,12 +83,13 @@ const Main = () => {
                 'Content-Type': 'application/json',
             }
         })
-        const data = response.json();
+        const data = await response.json();
         if(!response.ok){
             throw new Error('error in adding message');
         }else{
-            console.log(data);
-            alert('message sent successfully');
+            setTextMessage('');
+            // console.log(data);
+            // alert('message sent successfully');
         }
 
         }catch(err){
@@ -113,6 +120,14 @@ const Main = () => {
             {
                 activeUsers &&  activeUsers.map((user)=>{
                     return <p>{user.email} has joined</p>
+                })
+            }
+            {
+                messages && messages.map((message)=>{
+                    return <div>
+                        <p style={{fontWeight:"bold"}}>{message.username}</p>
+                        <p>{message.text}</p>
+                    </div>
                 })
             }
             <div>
