@@ -14,6 +14,7 @@ const Router = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Login />} />
           <Route path="/chat-app" element={<Main />}/>
+         
         </Route>
       </Routes>
     </BrowserRouter>
