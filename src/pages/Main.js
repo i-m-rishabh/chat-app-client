@@ -1,4 +1,4 @@
-import { useEffect,  useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import Group from "./Group";
 
@@ -12,8 +12,7 @@ const Main = () => {
     const [intervalId, setIntervalId] = useState('');
     const [token, setToken] = useState('');
     const navigate = useNavigate();
-    
-    
+
     useEffect(() => {
         const token = localStorage.getItem('token');
         setToken(token);
@@ -66,7 +65,7 @@ const Main = () => {
         //         }
         //     })
         // }
-        
+
         fetchActiveUsers();
         // createGroup();
         var intervalId = setInterval(() => {
@@ -81,7 +80,6 @@ const Main = () => {
         }
     }, [token]);
 
-
     const handleLogout = async () => {
 
         const response = await fetch('http://localhost:5000/logout', {
@@ -95,6 +93,7 @@ const Main = () => {
         if (!response.ok) {
             console.log(data.message);
         } else {
+            localStorage.removeItem('token');
             localStorage.removeItem('oldMessages');
             if (intervalId) {
                 clearInterval(intervalId);
@@ -130,7 +129,7 @@ const Main = () => {
             console.error(error);
         }
     }
-    const handleGroupChange = (event) =>{
+    const handleGroupChange = (event) => {
         //transforming to cammel case it convetion
         setGroupId(event.target.dataset.groupId);
         setGroupName(event.target.dataset.groupName);
@@ -148,7 +147,7 @@ const Main = () => {
                         activeGroups.map((group) => {
                             return (
                                 //using dataset property
-                                <button data-group-id={group.id} data-group-name={group.groupName} onClick={handleGroupChange}>{group.groupName}</button>
+                                <button key={group.id} data-group-id={group.id} data-group-name={group.groupName} onClick={handleGroupChange}>{group.groupName}</button>
                             )
                         })
                     }
@@ -164,11 +163,11 @@ const Main = () => {
             </div>
             {
                 activeUsers && activeUsers.map((user) => {
-                    return <p>{user.email} has joined</p>
+                    return <p key={user.id}>{user.email} has joined</p>
                 })
             }
-            {groupId && <Group groupId={groupId} groupName={groupName}/>}
-           
+            {groupId && <Group groupId={groupId} groupName={groupName} />}
+
         </div>
     )
 }

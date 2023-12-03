@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 
-const Group = ({ groupId, groupName }) => {
+const Group = ({ groupId, groupName}) => {
     const [chats, setChats] = useState([]);
     const [text, setText] = useState('');
     const [addWindowActive, setAddWindowActive] = useState(false);
@@ -10,7 +10,11 @@ const Group = ({ groupId, groupName }) => {
     const [adminWindowActive, setAdminWindowActive] = useState(false);
     const [fetchedAdmins, setFetchedAdmins] = useState([]);
     const [selectedAdmins, setSelectedAdmins] = useState([]);
+    const [isAdmin, setIsAdmin] = useState(null);
 
+    useEffect(() => {
+        fetchCurrentUser();
+    }, [groupId]);
     // there is small bug in program that anyone can remove any member even to admin.
     useEffect(() => {
         // FUNCTION IS MOVED OUTSIDE SO THAT WE CAN USE IT OTHER PLACES AS WELL SEE BELOW
@@ -113,6 +117,27 @@ const Group = ({ groupId, groupName }) => {
             clearInterval(interval);
         }
     }, [groupId]);
+
+    async function fetchCurrentUser() {
+        try {
+            const response = await fetch(`http://localhost:5000/get-current-user/${groupId}`, {
+                method: 'GET',
+                headers: {
+                    'authorization': localStorage.getItem('token'),
+                    'Contenty-Type': 'application/json',
+                }
+            })
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error);
+            } else {
+                console.log(data.data);
+                setIsAdmin( data.data.UserGroups.isAdmin);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
 
     async function fetchAllMembers() {
         try {
@@ -276,11 +301,12 @@ const Group = ({ groupId, groupName }) => {
         <div>
             {/* for test */}
             {/* <pre>{JSON.stringify(allMembers)}</pre> */}
-            {/* <pre>{JSON.stringify(currentMembers)}</pre> */}
+            {/* <pre>{JSON.stringify(fetchedAdmins)}</pre> */}
             {/* <pre>{JSON.stringify(selectedMembers)}</pre> */}
+            {/* <pre>isAdmin: { JSON.stringify(isAdmin)}</pre> */}
             <h1>{groupName}</h1>
             {/* display chats */}
-            {!addWindowActive && <button onClick={() => { setAddWindowActive(true) }}>add members</button>}
+            {!addWindowActive &&  isAdmin && <button onClick={() => { setAddWindowActive(true) }}>add members</button>}
             {/* add window */}
             {addWindowActive && <div>
                 <form onSubmit={handeUpdateMembers}>
@@ -290,9 +316,10 @@ const Group = ({ groupId, groupName }) => {
                         })
                     }
                     <div><button type="submit">add</button></div>
+                    <button onClick={() => { setAddWindowActive(false) }}>cancel</button>
                 </form>
             </div>}
-            {!adminWindowActive && <button onClick={handleAdminWindowActive}>manage admins</button>}
+            {!adminWindowActive && isAdmin &&  <button onClick={handleAdminWindowActive}>manage admins</button>}
             {
                 adminWindowActive && <div>
                     <form>
