@@ -7,48 +7,52 @@ const Group = ({ groupId, groupName }) => {
     const [currentMembers, setCurrentMembers] = useState([]);
     const [allMembers, setAllMembers] = useState([]);
     const [selectedMembers, setSelectedMembers] = useState([]);
+    const [adminWindowActive, setAdminWindowActive] = useState(false);
+    const [fetchedAdmins, setFetchedAdmins] = useState([]);
+    const [selectedAdmins, setSelectedAdmins] = useState([]);
 
-// there is small bug in program that anyone can remove any member even to admin.
+    // there is small bug in program that anyone can remove any member even to admin.
     useEffect(() => {
-        async function fetchAllMembers() {
-            try {
-                let response = await fetch('http://localhost:5000/get-all-users', {
-                    method: 'GET',
-                    headers: {
-                        'authorization': localStorage.getItem('token'),
-                        'Content-Type': 'application/json',
-                    }
-                });
-                let data = await response.json();
-                if (!response.ok) {
-                    throw new Error(data.error);
-                } else {
-                    setAllMembers(data.data);
-                }
-            } catch (error) {
-                console.log(error);
-            }
-        }
-        // add appropriate logic
-        async function fetchCurrentMembers() {
-            try {
-                let response = await fetch(`http://localhost:5000/get-users/${groupId}`, {
-                    method: 'GET',
-                    headers: {
-                        'authorization': localStorage.getItem('token'),
-                        'Content-Type': 'application/json',
-                    }
-                })
-                let data = await response.json();
-                if (!response.ok) {
-                    throw new Error(data.error);
-                } else {
-                    setCurrentMembers(data.data);
-                }
-            } catch (error) {
-                console.log(error);
-            }
-        }
+        // FUNCTION IS MOVED OUTSIDE SO THAT WE CAN USE IT OTHER PLACES AS WELL SEE BELOW
+        // async function fetchAllMembers() {
+        //     try {
+        //         let response = await fetch('http://localhost:5000/get-all-users', {
+        //             method: 'GET',
+        //             headers: {
+        //                 'authorization': localStorage.getItem('token'),
+        //                 'Content-Type': 'application/json',
+        //             }
+        //         });
+        //         let data = await response.json();
+        //         if (!response.ok) {
+        //             throw new Error(data.error);
+        //         } else {
+        //             setAllMembers(data.data);
+        //         }
+        //     } catch (error) {
+        //         console.log(error);
+        //     }
+        // }
+        // // add appropriate logic
+        // async function fetchCurrentMembers() {
+        //     try {
+        //         let response = await fetch(`http://localhost:5000/get-users/${groupId}`, {
+        //             method: 'GET',
+        //             headers: {
+        //                 'authorization': localStorage.getItem('token'),
+        //                 'Content-Type': 'application/json',
+        //             }
+        //         })
+        //         let data = await response.json();
+        //         if (!response.ok) {
+        //             throw new Error(data.error);
+        //         } else {
+        //             setCurrentMembers(data.data);
+        //         }
+        //     } catch (error) {
+        //         console.log(error);
+        //     }
+        // }
 
         fetchAllMembers();
         fetchCurrentMembers();
@@ -60,6 +64,13 @@ const Group = ({ groupId, groupName }) => {
         })
         setSelectedMembers(ids);
     }, [currentMembers]);
+
+    useEffect(() => {
+        const ids = fetchedAdmins.map((admin) => {
+            return admin.id;
+        });
+        setSelectedAdmins(ids);
+    }, [fetchedAdmins])
 
     useEffect(() => {
         async function fetchGroupChats() {
@@ -103,6 +114,45 @@ const Group = ({ groupId, groupName }) => {
         }
     }, [groupId]);
 
+    async function fetchAllMembers() {
+        try {
+            let response = await fetch('http://localhost:5000/get-all-users', {
+                method: 'GET',
+                headers: {
+                    'authorization': localStorage.getItem('token'),
+                    'Content-Type': 'application/json',
+                }
+            });
+            let data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error);
+            } else {
+                setAllMembers(data.data);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    // add appropriate logic
+    async function fetchCurrentMembers() {
+        try {
+            let response = await fetch(`http://localhost:5000/get-users/${groupId}`, {
+                method: 'GET',
+                headers: {
+                    'authorization': localStorage.getItem('token'),
+                    'Content-Type': 'application/json',
+                }
+            })
+            let data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error);
+            } else {
+                setCurrentMembers(data.data);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
     const handleSendMessage = async (event) => {
         event.preventDefault();
         try {
@@ -155,14 +205,70 @@ const Group = ({ groupId, groupName }) => {
                 }
             });
             const data = await response.json();
-            if(!response.ok){
+            if (!response.ok) {
                 throw new Error(data.error);
-            }else{
+            } else {
                 alert('members updated');
                 setAddWindowActive(false);
             }
         } catch (err) {
             console.log(err);
+        }
+    }
+    async function handleAdminWindowActive() {
+        try {
+            await fetchCurrentMembers();
+            const response = await fetch(`http://localhost:5000/group/get-admins/${groupId}`, {
+                method: 'GET',
+                headers: {
+                    'authorization': localStorage.getItem('token'),
+                    'Content-Type': 'application/json',
+                }
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error);
+            } else {
+                setFetchedAdmins(data.data);
+                setAdminWindowActive(true);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    function handleAdminCheckboxChange(memberId) {
+        if (selectedAdmins.includes(memberId)) {
+            const updatedAdmins = selectedAdmins.filter((id) => {
+                return id !== memberId;
+            });
+            setSelectedAdmins(updatedAdmins);
+        } else {
+            setSelectedAdmins((prev) => {
+                return [...prev, memberId];
+            })
+        }
+    }
+    async function handleUpdateAdmins(event) {
+        event.preventDefault();
+        try {
+            const response = await fetch(`http://localhost:5000/group/update-admins/${groupId}`, {
+                method: 'POST',
+                body: JSON.stringify(selectedAdmins),
+                headers: {
+                    'authorization': localStorage.getItem('token'),
+                    'Content-Type': 'application/json',
+                }
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error);
+            } else {
+                alert('admin updated successfully');
+                setAdminWindowActive(false);
+            }
+        } catch (error) {
+            console.error(error);
         }
     }
 
@@ -177,7 +283,7 @@ const Group = ({ groupId, groupName }) => {
             {!addWindowActive && <button onClick={() => { setAddWindowActive(true) }}>add members</button>}
             {/* add window */}
             {addWindowActive && <div>
-                <form onSubmit={ handeUpdateMembers}>
+                <form onSubmit={handeUpdateMembers}>
                     {
                         allMembers.map((member) => {
                             return <li key={member.id}>{member.username} <input type="checkbox" checked={selectedMembers.includes(member.id)} value={member.id} onChange={() => { handleCheckboxChange(member.id) }} /></li>
@@ -186,6 +292,23 @@ const Group = ({ groupId, groupName }) => {
                     <div><button type="submit">add</button></div>
                 </form>
             </div>}
+            {!adminWindowActive && <button onClick={handleAdminWindowActive}>manage admins</button>}
+            {
+                adminWindowActive && <div>
+                    <form>
+                        <p>select admins</p>
+                        {
+                            currentMembers.map((member) => {
+                                return (
+                                    <li key={member.id}>{member.username} <input type="checkbox" checked={selectedAdmins.includes(member.id)} value={member.id} onChange={() => { handleAdminCheckboxChange(member.id) }} /></li>
+                                )
+                            })
+                        }
+                        <button onClick={handleUpdateAdmins}>update Admins</button>
+                        <button onClick={() => { setAdminWindowActive(false) }}>cancel</button>
+                    </form>
+                </div>
+            }
             <div>
                 {
                     chats.map((chat) => {

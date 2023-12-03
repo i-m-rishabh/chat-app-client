@@ -1,31 +1,19 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect,  useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import Group from "./Group";
 
 const Main = () => {
     const [activeUsers, setActiveUsers] = useState([]);
     const [activeGroups, setActiveGroups] = useState([]);
-    const [groupId, setGroupId] = useState(1);
-    const [groupName, setGroupName] = useState('universal');
+    const [groupId, setGroupId] = useState(null);
+    const [groupName, setGroupName] = useState(null);
     // const [textMessage, setTextMessage] = useState('');
     // const [messages, setMessages] = useState([]);
     const [intervalId, setIntervalId] = useState('');
     const [token, setToken] = useState('');
     const navigate = useNavigate();
-    // const inputRef = useRef(null);
-
-
-
-    //to focus text input on every render
-    // useEffect(() => {
-    //     inputRef.current.focus();
-    // });
-
-    //fetch active users
-    useEffect(()=>{
-        // setGroupId(1);
-        // setGroupName('universal');
-    },[])
+    
+    
     useEffect(() => {
         const token = localStorage.getItem('token');
         setToken(token);
@@ -65,56 +53,23 @@ const Main = () => {
                 console.error(error);
             }
         }
-        async function createGroup() {
-            await fetch('http://localhost:5000/group/create-group', {
-                method: 'POST',
-                body: JSON.stringify({
-                    groupName: 'universal',
-                }),
-                headers: {
-                    'authorization': token,
-                    'Content-type': 'application/json',
-                }
-            })
-        }
-        // async function fetchAllMessages() {
-        //     try {
-        //         const oldMessages = JSON.parse(localStorage.getItem('oldMessages')) || [];
-        //         let lastMessageId;
-        //         if (oldMessages.length > 0) {
-        //             lastMessageId = oldMessages[oldMessages.length - 1].id;
-        //         } else {
-        //             lastMessageId = -1;
+        // THIS LOGIC IS FOR UNIVERSAL GROUP
+        // async function createGroup() {
+        //     await fetch('http://localhost:5000/group/create-group', {
+        //         method: 'POST',
+        //         body: JSON.stringify({
+        //             groupName: 'universal',
+        //         }),
+        //         headers: {
+        //             'authorization': token,
+        //             'Content-type': 'application/json',
         //         }
-        //         const response = await fetch(`http://localhost:5000/message/get-messages/1?messageId=${lastMessageId}`, {
-        //             method: 'GET',
-        //             headers: {
-        //                 'authorization': token,
-        //                 'Content-Type': 'application/json'
-        //             }
-        //         });
-        //         const data = await response.json();
-        //         if (!response.ok) {
-        //             throw new Error(messages.error);
-        //         } else {
-        //             //add appropriate logic here
-        //             const updatedMessages = [...oldMessages, ...data.data].slice(-10);//get only latest 10 messages
-        //             console.log(updatedMessages);
-        //             localStorage.setItem('oldMessages', JSON.stringify(updatedMessages));
-        //             setMessages(() => {
-        //                 return updatedMessages;
-        //             })
-        //             console.log(messages);
-        //         }
-        //     } catch (err) {
-        //         console.error(err);
-        //     }
+        //     })
         // }
+        
         fetchActiveUsers();
-        createGroup();
-        // fetchAllMessages();
+        // createGroup();
         var intervalId = setInterval(() => {
-            // fetchAllMessages();
             fetchActiveGroups();
         }, 10000);
         setIntervalId(intervalId);
@@ -127,31 +82,6 @@ const Main = () => {
     }, [token]);
 
 
-
-    // const sendMessage = async (event) => {
-    //     event.preventDefault();
-    //     try {
-    //         const response = await fetch('http://localhost:5000/message/add-message/1', {
-    //             method: 'POST',
-    //             body: JSON.stringify({ text: textMessage }),
-    //             headers: {
-    //                 'authorization': token,
-    //                 'Content-Type': 'application/json',
-    //             }
-    //         })
-    //         const data = await response.json();
-    //         if (!response.ok) {
-    //             throw new Error('error in adding message');
-    //         } else {
-    //             setTextMessage('');
-    //             // console.log(data);
-    //             // alert('message sent successfully');
-    //         }
-
-    //     } catch (err) {
-    //         console.error(err);
-    //     }
-    // }
     const handleLogout = async () => {
 
         const response = await fetch('http://localhost:5000/logout', {
@@ -237,21 +167,8 @@ const Main = () => {
                     return <p>{user.email} has joined</p>
                 })
             }
-            <Group groupId={groupId} groupName={groupName}/>
-            {/* {
-                messages && messages.map((message) => {
-                    return <div>
-                        <p style={{ fontWeight: "bold" }}>{message.username}</p>
-                        <p>{message.text}</p>
-                    </div>
-                })
-            } */}
-            {/* <div>
-                <form onSubmit={sendMessage}>
-                    <input ref={inputRef} type="text" name="message" value={textMessage} onChange={(event) => { setTextMessage(event.target.value) }} />
-                    <button type="submit">send</button>
-                </form>
-            </div> */}
+            {groupId && <Group groupId={groupId} groupName={groupName}/>}
+           
         </div>
     )
 }
