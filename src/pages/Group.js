@@ -14,7 +14,7 @@ const Group = ({ groupId, groupName}) => {
 
     useEffect(() => {
         fetchCurrentUser();
-    }, [groupId]);
+    }, []);
     // there is small bug in program that anyone can remove any member even to admin.
     useEffect(() => {
         // FUNCTION IS MOVED OUTSIDE SO THAT WE CAN USE IT OTHER PLACES AS WELL SEE BELOW
