@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
+import io from 'socket.io-client';
 
-const Group = ({ groupId, groupName}) => {
+const Group = ({ groupId, groupName, socket }) => {
+    const [messages, setMessages] = useState([]);
     const [chats, setChats] = useState([]);
     const [text, setText] = useState('');
     const [addWindowActive, setAddWindowActive] = useState(false);
@@ -11,6 +13,47 @@ const Group = ({ groupId, groupName}) => {
     const [fetchedAdmins, setFetchedAdmins] = useState([]);
     const [selectedAdmins, setSelectedAdmins] = useState([]);
     const [isAdmin, setIsAdmin] = useState(null);
+
+    //initialing socket
+    // const socket = io("http://localhost:5000");
+
+    // // Add a listener for incoming chat messages
+    // useEffect(() => {
+    //     socket.on('chat message', (msg) => {
+    //         setMessage(msg);
+    //     });
+
+    //     // Clean up the listener when component unmounts
+    //     return () => {
+    //         socket.off('chat message');
+    //     };
+    // }, []);
+    // useEffect(() => {
+    //     const socket = io("http://localhost:5000");
+
+    //     // Add a listener for incoming chat messages
+    //     socket.on('chat message', (msg) => {
+    //         setMessage(msg);
+    //     });
+
+    //     // Clean up the listener when component unmounts
+    //     return () => {
+    //         socket.off('chat message');
+    //         socket.disconnect();
+    //     };
+    // }, []);  // Empty dependency array ensures it only runs once when component mounts
+
+    useEffect(() => {
+        socket.on('chat message', (data) => {
+            setMessages((prev)=>{
+                return [...prev, data];
+            });
+        })
+
+        return () => {
+            socket.off('chat message');
+        }
+    }, [socket]);
 
     useEffect(() => {
         fetchCurrentUser();
@@ -60,6 +103,16 @@ const Group = ({ groupId, groupName}) => {
 
         fetchAllMembers();
         fetchCurrentMembers();
+        // const socket = io("http://localhost:5000");
+
+        // // Join Socket.IO room based on the group ID
+        // socket.emit('join', { groupId });
+
+        // // Clean up the socket connection and leave the room when component unmounts
+        // return () => {
+        //     socket.emit('leave', { groupId });
+        //     socket.disconnect();
+        // };
     }, [groupId]);
 
     useEffect(() => {
@@ -109,13 +162,14 @@ const Group = ({ groupId, groupName}) => {
                 console.error(error);
             }
         }
-        let interval = setInterval(() => {
-            fetchGroupChats();
-        }, 2000);
+        // let interval = setInterval(() => {
+        //     fetchGroupChats();
+        // }, 2000);
 
-        return () => {
-            clearInterval(interval);
-        }
+        // return () => {
+        //     clearInterval(interval);
+        // }
+        fetchGroupChats();
     }, [groupId]);
 
     async function fetchCurrentUser() {
@@ -132,7 +186,7 @@ const Group = ({ groupId, groupName}) => {
                 throw new Error(data.error);
             } else {
                 console.log(data.data);
-                setIsAdmin( data.data.UserGroups.isAdmin);
+                setIsAdmin(data.data.UserGroups.isAdmin);
             }
         } catch (err) {
             console.error(err);
@@ -180,6 +234,8 @@ const Group = ({ groupId, groupName}) => {
     }
     const handleSendMessage = async (event) => {
         event.preventDefault();
+        // const socket = io("http://localhost:5000");
+
         try {
             const response = await fetch(`http://localhost:5000/message/add-message/${groupId}`, {
                 method: 'POST',
@@ -193,13 +249,18 @@ const Group = ({ groupId, groupName}) => {
             if (!response.ok) {
                 throw new Error('error in adding message');
             } else {
+                // Emit the message to the server
+                socket.emit('chat message', { groupId, text });
                 setText('');
                 // console.log(data);
                 // alert('message sent successfully');
             }
+
+            // setText('')
         } catch (err) {
             console.error(err);
         }
+
     }
 
     function handleCheckboxChange(filterId) {
@@ -306,7 +367,7 @@ const Group = ({ groupId, groupName}) => {
             {/* <pre>isAdmin: { JSON.stringify(isAdmin)}</pre> */}
             <h1>{groupName}</h1>
             {/* display chats */}
-            {!addWindowActive &&  isAdmin && <button onClick={() => { setAddWindowActive(true) }}>add members</button>}
+            {!addWindowActive && isAdmin && <button onClick={() => { setAddWindowActive(true) }}>add members</button>}
             {/* add window */}
             {addWindowActive && <div>
                 <form onSubmit={handeUpdateMembers}>
@@ -319,7 +380,7 @@ const Group = ({ groupId, groupName}) => {
                     <button onClick={() => { setAddWindowActive(false) }}>cancel</button>
                 </form>
             </div>}
-            {!adminWindowActive && isAdmin &&  <button onClick={handleAdminWindowActive}>manage admins</button>}
+            {!adminWindowActive && isAdmin && <button onClick={handleAdminWindowActive}>manage admins</button>}
             {
                 adminWindowActive && <div>
                     <form>
@@ -344,7 +405,18 @@ const Group = ({ groupId, groupName}) => {
                             <p>{chat.text}</p>
                         </div>
                     })
+                    
                 }
+                {
+                    messages.map((message) => {
+                        return <div>
+                            <p>{message.username}</p>
+                            <p>{message.text}</p>
+                        </div>
+                    })
+                }
+                {/* <p>this is message {message}</p> */}
+
             </div>
             {/* new chat */}
             <div>

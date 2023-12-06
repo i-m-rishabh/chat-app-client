@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import Group from "./Group";
+import io from 'socket.io-client';
 
 const Main = () => {
     const [activeUsers, setActiveUsers] = useState([]);
@@ -12,6 +13,25 @@ const Main = () => {
     const [intervalId, setIntervalId] = useState('');
     const [token, setToken] = useState('');
     const navigate = useNavigate();
+    const [socket, setSocket] = useState(null);
+
+    
+    useEffect(() => {
+        const newSocket = io("http://localhost:5000");
+        setSocket(newSocket);
+        newSocket.emit('join', {groupId});
+        // Add a listener for incoming chat messages
+        // socket.on('chat message', (msg) => {
+        //     setMessage(msg);
+        // });
+
+        // Clean up the listener when component unmounts
+        return () => {
+            // socket.off('chat message');
+            newSocket.emit('leave', {groupId});
+            newSocket.disconnect();
+        };
+    }, [groupId]); 
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -68,16 +88,17 @@ const Main = () => {
 
         fetchActiveUsers();
         // createGroup();
-        var intervalId = setInterval(() => {
-            fetchActiveGroups();
-        }, 10000);
-        setIntervalId(intervalId);
+        // var intervalId = setInterval(() => {
+        //     fetchActiveGroups();
+        // }, 10000);
+        fetchActiveGroups();
+        // setIntervalId(intervalId);
 
-        return () => {
-            if (intervalId) {
-                clearInterval(intervalId);
-            }
-        }
+        // return () => {
+        //     if (intervalId) {
+        //         clearInterval(intervalId);
+        //     }
+        // }
     }, [token]);
 
     const handleLogout = async () => {
@@ -166,7 +187,7 @@ const Main = () => {
                     return <p key={user.id}>{user.email} has joined</p>
                 })
             }
-            {groupId && <Group groupId={groupId} groupName={groupName} />}
+            {groupId && <Group groupId={groupId} groupName={groupName} socket={socket}/>}
 
         </div>
     )
