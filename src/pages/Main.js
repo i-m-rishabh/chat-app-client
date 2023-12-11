@@ -67,6 +67,7 @@ const Main = () => {
         // }
 
         fetchActiveUsers();
+        fetchActiveGroups();
         // createGroup();
         var intervalId = setInterval(() => {
             fetchActiveGroups();

@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import {Link} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 
 const Signup = () => {
     const initialState = {
@@ -9,7 +9,7 @@ const Signup = () => {
         password: '',
     }
     const [user, setUser] = useState(initialState)
-
+    const navigate = useNavigate();
     const handleChange = (e) => {
         // console.log([e.target.name, e.target.value]);
 
@@ -32,8 +32,9 @@ const Signup = () => {
         });
         const data = await response.json();
         // console.log(data);
+        setUser('');
         alert(data.message);
-
+        navigate('/login');
     }
     return (
         <div>

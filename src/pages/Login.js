@@ -31,7 +31,7 @@ const Login = () => {
             })
             const data = await response.json();
             if(!response.ok){
-                throw new Error('someting went wrong');
+                throw new Error(data.message);
             }else{
                 // 
                 // console.log(data);
@@ -41,6 +41,7 @@ const Login = () => {
             }
         }
         catch(err){
+            alert(err);
             console.error(err);
         }
 

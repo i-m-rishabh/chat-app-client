@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 
-const Group = ({ groupId, groupName}) => {
+const Group = ({ groupId, groupName }) => {
     const [chats, setChats] = useState([]);
     const [text, setText] = useState('');
     const [addWindowActive, setAddWindowActive] = useState(false);
@@ -11,6 +11,7 @@ const Group = ({ groupId, groupName}) => {
     const [fetchedAdmins, setFetchedAdmins] = useState([]);
     const [selectedAdmins, setSelectedAdmins] = useState([]);
     const [isAdmin, setIsAdmin] = useState(null);
+    const [file, setFile] = useState(null);
 
     useEffect(() => {
         fetchCurrentUser();
@@ -109,6 +110,7 @@ const Group = ({ groupId, groupName}) => {
                 console.error(error);
             }
         }
+        fetchGroupChats();
         let interval = setInterval(() => {
             fetchGroupChats();
         }, 2000);
@@ -132,7 +134,7 @@ const Group = ({ groupId, groupName}) => {
                 throw new Error(data.error);
             } else {
                 console.log(data.data);
-                setIsAdmin( data.data.UserGroups.isAdmin);
+                setIsAdmin(data.data.UserGroups.isAdmin);
             }
         } catch (err) {
             console.error(err);
@@ -201,6 +203,29 @@ const Group = ({ groupId, groupName}) => {
             console.error(err);
         }
     }
+
+    const handleSendMultimedia = async (e) => {
+        e.preventDefault();
+
+        if (!file) {
+            alert('Please select a file.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch(`http://localhost:5000/message/add-multimedia/${groupId}`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'authorization': localStorage.getItem('token'),
+            }
+        })
+
+
+        // setFile(null);
+    };
 
     function handleCheckboxChange(filterId) {
         if (selectedMembers.includes(filterId)) {
@@ -306,7 +331,7 @@ const Group = ({ groupId, groupName}) => {
             {/* <pre>isAdmin: { JSON.stringify(isAdmin)}</pre> */}
             <h1>{groupName}</h1>
             {/* display chats */}
-            {!addWindowActive &&  isAdmin && <button onClick={() => { setAddWindowActive(true) }}>add members</button>}
+            {!addWindowActive && isAdmin && <button onClick={() => { setAddWindowActive(true) }}>add members</button>}
             {/* add window */}
             {addWindowActive && <div>
                 <form onSubmit={handeUpdateMembers}>
@@ -319,7 +344,7 @@ const Group = ({ groupId, groupName}) => {
                     <button onClick={() => { setAddWindowActive(false) }}>cancel</button>
                 </form>
             </div>}
-            {!adminWindowActive && isAdmin &&  <button onClick={handleAdminWindowActive}>manage admins</button>}
+            {!adminWindowActive && isAdmin && <button onClick={handleAdminWindowActive}>manage admins</button>}
             {
                 adminWindowActive && <div>
                     <form>
@@ -339,10 +364,22 @@ const Group = ({ groupId, groupName}) => {
             <div>
                 {
                     chats.map((chat) => {
-                        return <div>
-                            <p>{chat.username}</p>
-                            <p>{chat.text}</p>
-                        </div>
+                        if (chat.type === 'multimedia') {
+                            return <div>
+                                <p>{chat.username}</p>
+                                {/* <img src={chat.multimediaUrl} /> */}
+                                <img
+                                    src={chat.multimediaUrl}
+                                    alt="Image"
+                                    style={{ width: '200px', height: '150px' }}
+                                />
+                            </div>
+                        } else {
+                            return <div>
+                                <p>{chat.username}</p>
+                                <p>{chat.text}</p>
+                            </div>
+                        }
                     })
                 }
             </div>
@@ -351,6 +388,16 @@ const Group = ({ groupId, groupName}) => {
                 <form onSubmit={handleSendMessage}>
                     <input type="text" value={text} placeholder="type here" onChange={(e) => { setText(e.target.value) }} />
                     <button type="submit">send</button>
+                </form>
+                <form onSubmit={handleSendMultimedia}>
+                    <input
+                        type="file"
+                        onChange={(e) => {
+                            const selectedFile = e.target.files[0];
+                            setFile(selectedFile);
+                        }}
+                    />
+                    <button type="submit">Send</button>
                 </form>
             </div>
         </div>
