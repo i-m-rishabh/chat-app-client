@@ -1,0 +1,24 @@
+.main{
+    /* background-color:  */
+    /* color: blue; */
+    /* box-sizing: border-box; */
+    /* border: 1px solid orange; */
+    width: 100%;
+    height: 100%;
+    /* display: flex;
+    justify-content: center;
+    align-items: center; */
+}
+.appTitle{
+    margin-left: 10px;
+    /* color: blue; */
+}
+.mainContent{
+    /* text-align: center; */
+    /* margin: auto; */
+    display: flex;
+    justify-content: center;
+    /* align-items: center; */
+    /* border: 1px solid red; */
+    /* text-align: center;     */
+}

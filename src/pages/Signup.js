@@ -1,5 +1,6 @@
 import React, { useState } from "react"
 import {Link, useNavigate} from 'react-router-dom';
+import classes from './Signup.module.css'
 
 const Signup = () => {
     const initialState = {
@@ -37,10 +38,10 @@ const Signup = () => {
         navigate('/login');
     }
     return (
-        <div>
-            <h1>signup</h1>
-            <form onSubmit={handleSubmit}>
-                <div>
+        <div className={classes.main}>
+            <h1 className={classes.heading}>signup</h1>
+            <form className={classes.signupform} onSubmit={handleSubmit}>
+                <div className={classes.inputdiv}>
                     <label>username: </label>
                     <input 
                         type='text' 
@@ -49,7 +50,7 @@ const Signup = () => {
                         onChange={handleChange}    
                     />
                 </div>
-                <div>
+                <div className={classes.inputdiv}>
                     <label>email: </label>
                     <input 
                         type='text' 
@@ -58,7 +59,7 @@ const Signup = () => {
                         onChange={handleChange}
                     />
                 </div>
-                <div>
+                <div className={classes.inputdiv}>
                     <label>phone: </label>
                     <input 
                         type='text' 
@@ -67,7 +68,7 @@ const Signup = () => {
                         onChange={handleChange}
                     />
                 </div>
-                <div>
+                <div className={classes.inputdiv}>
                     <label>password: </label>
                     <input 
                         type='text' 
@@ -78,7 +79,7 @@ const Signup = () => {
                 </div>
                 <div>
                     <button type="submit">create</button>
-                    <p>Already have an account <Link to="/login">Login</Link></p>
+                    <p className={classes.message}>Already have an account <Link to="/login">Login</Link></p>
                 </div>
             </form>
         </div>

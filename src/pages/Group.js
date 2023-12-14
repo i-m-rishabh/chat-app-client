@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import classes from './Group.module.css';
 
 const Group = ({ groupId, groupName }) => {
     const [chats, setChats] = useState([]);
@@ -323,45 +324,47 @@ const Group = ({ groupId, groupName }) => {
     }
 
     return (
-        <div>
+        <div className={classes.main}>
             {/* for test */}
             {/* <pre>{JSON.stringify(allMembers)}</pre> */}
             {/* <pre>{JSON.stringify(fetchedAdmins)}</pre> */}
             {/* <pre>{JSON.stringify(selectedMembers)}</pre> */}
             {/* <pre>isAdmin: { JSON.stringify(isAdmin)}</pre> */}
-            <h1>{groupName}</h1>
+            {/* <h1>{groupName}</h1> */}
             {/* display chats */}
-            {!addWindowActive && isAdmin && <button onClick={() => { setAddWindowActive(true) }}>add members</button>}
-            {/* add window */}
-            {addWindowActive && <div>
-                <form onSubmit={handeUpdateMembers}>
-                    {
-                        allMembers.map((member) => {
-                            return <li key={member.id}>{member.username} <input type="checkbox" checked={selectedMembers.includes(member.id)} value={member.id} onChange={() => { handleCheckboxChange(member.id) }} /></li>
-                        })
-                    }
-                    <div><button type="submit">add</button></div>
-                    <button onClick={() => { setAddWindowActive(false) }}>cancel</button>
-                </form>
-            </div>}
-            {!adminWindowActive && isAdmin && <button onClick={handleAdminWindowActive}>manage admins</button>}
-            {
-                adminWindowActive && <div>
-                    <form>
-                        <p>select admins</p>
+            <div className={classes.groupControlButton}>
+                {!addWindowActive && isAdmin && <button onClick={() => { setAddWindowActive(true) }}>add members</button>}
+                {/* add window */}
+                {addWindowActive && <div>
+                    <form onSubmit={handeUpdateMembers}>
                         {
-                            currentMembers.map((member) => {
-                                return (
-                                    <li key={member.id}>{member.username} <input type="checkbox" checked={selectedAdmins.includes(member.id)} value={member.id} onChange={() => { handleAdminCheckboxChange(member.id) }} /></li>
-                                )
+                            allMembers.map((member) => {
+                                return <li key={member.id}>{member.username} <input type="checkbox" checked={selectedMembers.includes(member.id)} value={member.id} onChange={() => { handleCheckboxChange(member.id) }} /></li>
                             })
                         }
-                        <button onClick={handleUpdateAdmins}>update Admins</button>
-                        <button onClick={() => { setAdminWindowActive(false) }}>cancel</button>
+                        <div><button type="submit">add</button></div>
+                        <button onClick={() => { setAddWindowActive(false) }}>cancel</button>
                     </form>
-                </div>
-            }
-            <div>
+                </div>}
+                {!adminWindowActive && isAdmin && <button onClick={handleAdminWindowActive}>manage admins</button>}
+                {
+                    adminWindowActive && <div>
+                        <form>
+                            <p>select admins</p>
+                            {
+                                currentMembers.map((member) => {
+                                    return (
+                                        <li key={member.id}>{member.username} <input type="checkbox" checked={selectedAdmins.includes(member.id)} value={member.id} onChange={() => { handleAdminCheckboxChange(member.id) }} /></li>
+                                    )
+                                })
+                            }
+                            <button onClick={handleUpdateAdmins}>update Admins</button>
+                            <button onClick={() => { setAdminWindowActive(false) }}>cancel</button>
+                        </form>
+                    </div>
+                }
+            </div>
+            <div className={classes.chats}>
                 {
                     chats.map((chat) => {
                         if (chat.type === 'multimedia') {
@@ -384,9 +387,15 @@ const Group = ({ groupId, groupName }) => {
                 }
             </div>
             {/* new chat */}
-            <div>
+            <div className={classes.newChat}>
                 <form onSubmit={handleSendMessage}>
-                    <input type="text" value={text} placeholder="type here" onChange={(e) => { setText(e.target.value) }} />
+                    <input
+                        type="text"
+                        value={text}
+                        placeholder="type here"
+                        onChange={(e) => { setText(e.target.value) }}
+                        style={{ width: '80%', padding: '5px' }}
+                    />
                     <button type="submit">send</button>
                 </form>
                 <form onSubmit={handleSendMultimedia}>
@@ -396,6 +405,7 @@ const Group = ({ groupId, groupName }) => {
                             const selectedFile = e.target.files[0];
                             setFile(selectedFile);
                         }}
+                        style={{ width: '70%', padding: '10px' }}
                     />
                     <button type="submit">Send</button>
                 </form>

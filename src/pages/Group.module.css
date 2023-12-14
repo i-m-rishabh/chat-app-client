@@ -1,0 +1,28 @@
+.main{
+
+    height: 100%;
+    position: relative;
+    /* box-sizing: border-box; */
+}
+.groupControlButton{
+    position:fixed;
+    top: 18%;
+    left: 25vw;
+    background-color: grey;
+    padding: 3px;
+    /* margin-top: 10px; */
+    overflow: hidden;
+}
+.chats{
+    /* background-color:red; */
+    
+}
+.newChat{
+   
+    position: fixed;
+    /* bottom: -5px; */
+    top:85%;
+    left: 45vw;
+    background-color: grey;
+    padding: 5px;
+}

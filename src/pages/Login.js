@@ -1,6 +1,6 @@
 import { useState } from "react";
 import {Link, useNavigate} from 'react-router-dom';
-
+import classes from './Login.module.css';
 const Login = () => {
 
     const navigate = useNavigate();
@@ -48,19 +48,19 @@ const Login = () => {
     }
     return (
         <div>
-            <h1>login</h1>
-            <form onSubmit={handleSubmit}>
-                <div>
+            <h1 className={classes.heading}>login</h1>
+            <form onSubmit={handleSubmit} className={classes.loginform}>
+                <div className={classes.inputdiv}>
                     <label>email: </label>
                     <input type='email' name="email" value={credential.email} onChange={handleChange} />
                 </div>
-                <div>
+                <div className={classes.inputdiv}>
                     <label>password: </label>
                     <input type="password" name='password' value={credential.password} onChange={handleChange} />
                 </div>
                 <div>
-                    <button type="submit"> login </button>
-                    <p>don't have an account <Link to={'/signup'}>signup</Link></p>
+                    <button type="submit" > login </button>
+                    <p className={classes.message}>don't have an account <Link to={'/signup'}>signup</Link></p>
                 </div>
             </form>
         </div>

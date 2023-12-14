@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import Group from "./Group";
+import classes from './Main.module.css';
 
 const Main = () => {
     const [activeUsers, setActiveUsers] = useState([]);
@@ -137,38 +138,54 @@ const Main = () => {
     }
 
     return (
-        <div>
-            <h1> welcome to the app</h1>
-            <button onClick={handleLogout}>logout</button>
-
-            <div>
-                <div>
-                    <h2>groups</h2>
-                    {
-                        activeGroups.map((group) => {
-                            return (
-                                //using dataset property
-                                <button key={group.id} data-group-id={group.id} data-group-name={group.groupName} onClick={handleGroupChange}>{group.groupName}</button>
-                            )
-                        })
-                    }
+        <div className={classes.main}>
+            <div className={classes.mainheading}>
+                <h3 className={classes.welcomemessage}> welcome to the app</h3>
+                <button className={classes.logoutbutton} onClick={handleLogout}>logout</button>
+            </div>
+            <div className={classes.maincontent}>
+                <div className={classes.sidebar}>
+                    <div className={classes.grouplist}>
+                        <h2 className={classes.grouplist__heading}>groups</h2>
+                        {
+                            activeGroups.map((group) => {
+                                return (
+                                    //using dataset property
+                                    <button
+                                        key={group.id}
+                                        data-group-id={group.id}
+                                        data-group-name={group.groupName}
+                                        onClick={handleGroupChange}
+                                        className={`${classes.grouplist__group} ${+groupId === +group.id? classes.active_group : ""}`}
+                                        >
+                                        {group.groupName}
+                                    </button>
+                                )
+                            })
+                        }
+                    </div>
+                    <div className={classes.newgroup}>
+                        {/* <h2>create new group</h2> */}
+                        <form onSubmit={handleCreateGroup}>
+                            {/* <label>group name</label> */}
+                            <input name='group' type="text" placeholder="group name" />
+                            <button>create</button>
+                        </form>
+                    </div>
                 </div>
-                <div>
-                    <h2>create new group</h2>
-                    <form onSubmit={handleCreateGroup}>
-                        <label>group name</label>
-                        <input name='group' type="text" />
-                        <button>create</button>
-                    </form>
+                <div className={classes.mainbar}>
+                    {/* <div className={classes.activeuserlist}>
+                        {
+                            activeUsers && activeUsers.map((user) => {
+                                return <p key={user.id}>{user.email} has joined</p>
+                            })
+                        }
+                    </div> */}
+                    <div className={classes.groupcontainer}>
+                        {groupId && <Group groupId={groupId} groupName={groupName} />}
+                    </div>
                 </div>
             </div>
-            {
-                activeUsers && activeUsers.map((user) => {
-                    return <p key={user.id}>{user.email} has joined</p>
-                })
-            }
-            {groupId && <Group groupId={groupId} groupName={groupName} />}
-
         </div>
     )
 }
